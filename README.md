@@ -4,6 +4,16 @@
 
 At [r/roguelikedev](https://www.reddit.com/r/roguelikedev/) we're doing a dev-along following [The Complete Roguelike Tutorial](http://www.roguebasin.com/index.php?title=Complete_Roguelike_Tutorial,_using_python%2Blibtcod).
 
+## Welcome to YARLG - YetAnotherRogueLike
+
+This game was developed with the help of the roguelikedev-reddit-community (links below). I just started to develop with python so this could be rubbish and bad code design. Lets see where the tutorial takes us.
+
+## Development Status
+
+* 2017-08-14 : got the libtcod compiled on macOS with the help of https://www.reddit.com/r/roguelikedev/comments/6imw2p/libtcod_on_os_x_sierra/
+* 2017-08-14 : initial Part 1 done now. I have an @ on my screen
+
+
 ## If you would like to participate on GitHub
 
 * [Sign up for a free personal account](https://github.com/signup/free) if you don't already have one.
