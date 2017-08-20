@@ -3,10 +3,10 @@
 #title           : yarlg.py
 #description     : YetAnotherRogueLikeGame
 #author          : cblte
-#date            : 2017-08-14
-#version         : 0.1
+#date            : 2017-08-20
+#version         : 0.2
 #usage           : python pyscript.py
-#notes           : Part 1 - setup and showing the @ on screen
+#notes           : Part 2 - the object and the map
 #python_version  : 2.x
 #==============================================================================
 
@@ -56,18 +56,24 @@ def handle_keys():
 
 # now the main loop of the game
 while not libtcod.console_is_window_closed():
+    # off screen console
+    con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
+
     # each iteration we want to print something usefull to the screen
     # turn based: each iteration is a turn. real-time each one is a frame
-    libtcod.console_set_default_foreground(0, libtcod.white)
+    libtcod.console_set_default_foreground(con, libtcod.white)
 
     # now we print a character at position 1,1
-    libtcod.console_put_char(0, playerx, playery, '@', libtcod.BKGND_NONE)
+    libtcod.console_put_char(con, playerx, playery, '@', libtcod.BKGND_NONE)
+
+    # transfer everything from con to the root console
+    libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
 
     # flush everything to the front
     libtcod.console_flush()
 
     # delete "old" player position
-    libtcod.console_put_char(0, playerx, playery, ' ', libtcod.BKGND_NONE)
+    libtcod.console_put_char(con, playerx, playery, ' ', libtcod.BKGND_NONE)
     # handle key press now
     exit = handle_keys()
     if exit:
