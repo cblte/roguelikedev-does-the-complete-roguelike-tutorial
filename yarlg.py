@@ -19,7 +19,7 @@ LIMIT_FPS = 20 # 20 FPS maximum
 # setting the font
 libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
 # most important call, initilizing the window
-libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'RLD_DTHC_RLT - YetAnotherRogueLikeGame',False)
+libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'RLD_DTC_RLT - YetAnotherRogueLikeGame',False)
 # this is just for a real time based game
 libtcod.sys_set_fps(LIMIT_FPS)
 
