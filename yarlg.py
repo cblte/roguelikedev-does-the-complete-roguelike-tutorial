@@ -17,11 +17,29 @@ SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
 LIMIT_FPS = 20 # 20 FPS maximum
 
+MAP_WIDTH = 80
+MAP_HEIGHT = 45
+color_dark_wall = libtcod.Color(0, 0, 100)
+color_dark_ground = libtcod.Color(50, 50, 150)
+
+
 # ---------------------------
 # classes
 # ---------------------------
 
-class Entity:
+class Tile:
+    # a tile of the map and its properties
+    def __init__(self, blocked, block_sight = None):
+        self.blocked = blocked
+
+        # by default, if a tile is blocked, it also blocks sight
+        if block_sight is None: block_sight = blocked
+        self.block_sight = block_sight
+
+# ----- END OF TILE class
+
+
+class Object:
     # this is a generic object: the play, a monster, an iem, the stairs
     # it's always represented by a character on screen
     def __init__(self, x, y, char, color):
@@ -32,8 +50,9 @@ class Entity:
 
     def move(self, dx, dy):
         # move by the given amount
-        self.x += dx
-        self.y += dy
+        if not map[self.x + dx][self.y + dy].blocked:
+            self.x += dx
+            self.y += dy
 
     def draw(self):
         # set the color and then draw the character that represents
@@ -47,9 +66,52 @@ class Entity:
 ## ----- END OF Object
 
 
+
 # ---------------------------
 # functions
 # ---------------------------
+
+def make_map():
+    global map
+
+    # fill map with unblocked tiles
+    map = [[ Tile(False)
+        for y in range(MAP_HEIGHT) ]
+            for x in range(MAP_WIDTH) ]
+
+            # place two pillars to test the map
+    map[30][22].blocked = True
+    map[30][22].block_sight = True
+    map[50][22].blocked = True
+    map[50][22].block_sight = True
+
+
+# ----- end of make_map
+
+def render_all():
+    # render the map, then put everything else on top if that
+
+    global color_light_wall
+    global color_Light_ground
+
+    # draw the map
+    for y in range(MAP_HEIGHT):
+        for x in range(MAP_WIDTH):
+            wall = map[x][y].block_sight
+            if wall:
+                libtcod.console_set_char_background(con, x, y, color_dark_wall, libtcod.BKGND_SET)
+            else:
+                libtcod.console_set_char_background(con, x, y, color_dark_ground)
+
+    # draw all objects in the list
+    for object in objects:
+        object.draw()
+
+    # transfer everything from con to the root console and present it
+    libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
+
+# ----- end of render_all
+
 
 def handle_keys():
     # function to handle key input and to move the player around
@@ -73,6 +135,7 @@ def handle_keys():
 
 # ----- end of handle_keys
 
+
 # ---------------------------
 # initilizion & main loop
 # ---------------------------
@@ -84,30 +147,29 @@ libtcod.sys_set_fps(LIMIT_FPS)
 con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 
 # object that represents the player
-player = Entity(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, '@', libtcod.white)
+player = Object(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, '@', libtcod.white)
 #object that represents an npc
-npc =  Entity(SCREEN_WIDTH / 2 -5, SCREEN_HEIGHT / 2 - 5, '@', libtcod.yellow)
+npc =  Object(SCREEN_WIDTH / 2 -5, SCREEN_HEIGHT / 2 - 5, '@', libtcod.yellow)
 
 # the list of objects with these in them
 objects = [npc, player]
 
+# generate map (at this point it is not drawn to the screen)
+make_map()
 
 # ---------------------------
 # main game loop
 # ---------------------------
 while not libtcod.console_is_window_closed():
 
-    # draw all objects in the list
-    for entity in objects:
-        entity.draw()
+    # render the screen
+    render_all()
 
-    # transfer everything from con to the root console and present it
-    libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
     libtcod.console_flush()
 
     # clear all object before they move
-    for entity in objects:
-        entity.clear()
+    for Object in objects:
+        Object.clear()
 
     # handle key press now
     exit = handle_keys()
