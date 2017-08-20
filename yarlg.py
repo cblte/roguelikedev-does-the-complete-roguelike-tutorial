@@ -12,29 +12,49 @@
 
 import libtcodpy as libtcod
 
+# actual size of the window and main game settings
 SCREEN_WIDTH = 80
 SCREEN_HEIGHT = 50
 LIMIT_FPS = 20 # 20 FPS maximum
 
-# setting the font
-libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
-# most important call, initilizing the window
-libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'RLD_DTC_RLT - YetAnotherRogueLikeGame',False)
-# this is just for a real time based game
-libtcod.sys_set_fps(LIMIT_FPS)
+# ---------------------------
+# classes
+# ---------------------------
 
-# player setup
-playerx = SCREEN_WIDTH / 2
-playery = SCREEN_HEIGHT / 2
+class Entity:
+    # this is a generic object: the play, a monster, an iem, the stairs
+    # it's always represented by a character on screen
+    def __init__(self, x, y, char, color):
+        self.x = x
+        self.y = y
+        self.char = char
+        self.color = color
 
-#
-# function to handle key input and to move the player around
-# v 1
+    def move(self, dx, dy):
+        # move by the given amount
+        self.x += dx
+        self.y += dy
+
+    def draw(self):
+        # set the color and then draw the character that represents
+        # this object at its position
+        libtcod.console_set_default_foreground(con, self.color)
+        libtcod.console_put_char(con, self.x, self.y, self.char, libtcod.BKGND_NONE)
+
+    def clear(self):
+        # erase the character that represents this object
+        libtcod.console_put_char(con, self.x, self.y, ' ', libtcod.BKGND_NONE)
+## ----- END OF Object
+
+
+# ---------------------------
+# functions
+# ---------------------------
+
 def handle_keys():
-    global playerx
-    global playery
-
+    # function to handle key input and to move the player around
     key = libtcod.console_check_for_keypress()
+
     if key.vk == libtcod.KEY_ENTER and key.lalt:
         # ALT+Enter : toggle Fullscreen
         libtcod.console_set_fullscreen(not libtcod.console_is_fullscreen())
@@ -43,38 +63,56 @@ def handle_keys():
 
     # movement keys
     if libtcod.console_is_key_pressed(libtcod.KEY_UP):
-        playery -= 1
+        player.move(0,-1)
     elif libtcod.console_is_key_pressed(libtcod.KEY_RIGHT):
-        playerx += 1
+        player.move(1,0)
     elif libtcod.console_is_key_pressed(libtcod.KEY_DOWN):
-        playery += 1
+        player.move(0,1)
     elif libtcod.console_is_key_pressed(libtcod.KEY_LEFT):
-        playerx -= 1
+        player.move(-1,0)
 
 # ----- end of handle_keys
 
+# ---------------------------
+# initilizion & main loop
+# ---------------------------
+# setting the font
+libtcod.console_set_custom_font('arial10x10.png', libtcod.FONT_TYPE_GREYSCALE | libtcod.FONT_LAYOUT_TCOD)
+libtcod.console_init_root(SCREEN_WIDTH, SCREEN_HEIGHT, 'RLD_DTC_RLT - YetAnotherRogueLikeGame',False)
+libtcod.sys_set_fps(LIMIT_FPS)
+# off screen console
+con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 
-# now the main loop of the game
+# object that represents the player
+player = Entity(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, '@', libtcod.white)
+#object that represents an npc
+npc =  Entity(SCREEN_WIDTH / 2 -5, SCREEN_HEIGHT / 2 - 5, '@', libtcod.yellow)
+
+# the list of objects with these in them
+objects = [npc, player]
+
+
+# ---------------------------
+# main game loop
+# ---------------------------
 while not libtcod.console_is_window_closed():
-    # off screen console
-    con = libtcod.console_new(SCREEN_WIDTH, SCREEN_HEIGHT)
 
-    # each iteration we want to print something usefull to the screen
-    # turn based: each iteration is a turn. real-time each one is a frame
-    libtcod.console_set_default_foreground(con, libtcod.white)
+    # draw all objects in the list
+    for entity in objects:
+        entity.draw()
 
-    # now we print a character at position 1,1
-    libtcod.console_put_char(con, playerx, playery, '@', libtcod.BKGND_NONE)
-
-    # transfer everything from con to the root console
+    # transfer everything from con to the root console and present it
     libtcod.console_blit(con, 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 0)
-
-    # flush everything to the front
     libtcod.console_flush()
 
-    # delete "old" player position
-    libtcod.console_put_char(con, playerx, playery, ' ', libtcod.BKGND_NONE)
+    # clear all object before they move
+    for entity in objects:
+        entity.clear()
+
     # handle key press now
     exit = handle_keys()
     if exit:
         break
+
+
+# -- end of the main program
